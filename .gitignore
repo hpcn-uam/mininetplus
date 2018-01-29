@@ -1,2 +1,9 @@
 *.html
 *.pyc
+*.pcap
+index.html*
+h*.csv
+h*.pcap
+s*.csv
+s*.pcap
+wget-log*
