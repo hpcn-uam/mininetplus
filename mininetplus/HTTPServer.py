@@ -1,4 +1,4 @@
-from mininet.node import Node
+from mininetplus.node import Node
 
 class HTTPServer(Node):
     "A Node with IP forwarding enabled."
@@ -6,4 +6,4 @@ class HTTPServer(Node):
     def config(self, **params):
         super(HTTPServer, self).config(**params)
         # Enable forwarding on the router
-        self.cmd('python -m SimpleHTTPServer 8000 &')
+        self.cmd('python -m SimpleHTTPServer 80 &')

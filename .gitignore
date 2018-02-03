@@ -7,3 +7,4 @@ h*.pcap
 s*.csv
 s*.pcap
 wget-log*
+.vscode
