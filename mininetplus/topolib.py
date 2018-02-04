@@ -1,24 +1,22 @@
-from mininetplus.AbstractTopo import AbstractTopo
-from mininetplus.node import Node, Router
+from mininetplus.topo import Topo
+from mininetplus.nodelib import Router
+from mininetplus.node import Host
 
-class LinearSwitchTopo(AbstractTopo):
-    def __init__(self, n=3, delays=[5, 10], firstNode=None, lastNode=None):
+class LinearSwitchTopo(Topo):
+    def __init__(self, n=3, delays=[5, 10], firstNodeParams={}, lastNodeParams={}):
         self.n = n
         self.delays = delays
-        self.firstNode = firstNode
-        self.lastNode = lastNode
+        self.firstNodeParams = firstNodeParams
+        self.lastNodeParams = lastNodeParams
         super(LinearSwitchTopo, self).__init__()
 
     def build(self, **_opts):
         n = self.n
         delays = self.delays
-        firstNode = self.firstNode
-        lastNode = self.lastNode
+        firstNodeParams = self.firstNodeParams
+        lastNodeParams = self.lastNodeParams
 
-        if firstNode is not None:
-            h0 = self.addHost('h0', cls=firstNode)
-        else:
-            h0 = self.addHost('h0')
+        h0 = self.addHost('h0', **firstNodeParams)
 
         s_old = h0
         for i in range(n-2):
@@ -29,42 +27,42 @@ class LinearSwitchTopo(AbstractTopo):
             hi = self.addHost('h%d' % (i+1))
             self.addLink(s_new, hi)
 
-        if lastNode is not None:
-            hN = self.addHost('hN', cls=lastNode)
-        else:
-            hN = self.addHost('hN')
+        hN = self.addHost('hN', **lastNodeParams)
+        
         switches = self.switches()
         self.addLink(switches[0], h0, delay='%dms' % (delays[0]))
         self.addLink(switches[-1], hN, delay='%dms' % (delays[-1]))
 
 
-class LinearLinuxRouterTopo(AbstractTopo):
+class LinearLinuxRouterTopo(Topo):
     ip_counter3 = 20
     ip_counter2 = 0
     ip_counter1 = 0
    
 
-    def __init__(self, n=3, delays=[5, 10], firstNode=None, lastNode=None):
+    def __init__(self, n=3, delays=[5, 10], firstNodeParams={}, lastNodeParams={}):
         self.n = n
         self.delays = delays
-        self.firstNode = firstNode
-        self.lastNode = lastNode
+        self.firstNodeParams = firstNodeParams
+        self.lastNodeParams = lastNodeParams
         super(LinearLinuxRouterTopo, self).__init__()
 
     def build(self, **_opts):
         n = self.n
         delays = self.delays
-        firstNode = self.firstNode
-        lastNode = self.lastNode
+        firstNodeParams = self.firstNodeParams
+        lastNodeParams = self.lastNodeParams
 
         s_oldbytes = self.getAnotherIP()
 
-        h0 = None
+        if 'cls' not in firstNodeParams:
+            firstNodeParams['cls'] = Host
 
-        if firstNode is not None:
-            h0 = self.addHost('h0', cls=firstNode, ip='%d.%d.%d.100/24' % s_oldbytes)
-        else:
-            h0 = self.addHost('h0', ip='%d.%d.%d.100/24' % s_oldbytes, cls=Node)
+        if 'cls' not in lastNodeParams:
+            lastNodeParams['cls'] = Host
+
+
+        h0 = self.addHost('h0', ip='%d.%d.%d.100/24' % s_oldbytes, **firstNodeParams)
 
         s_old = h0
         routes = []
@@ -115,12 +113,8 @@ class LinearLinuxRouterTopo(AbstractTopo):
        
 
 
-        if lastNode is not None:
-            hN = self.addHost('hN', cls=lastNode,
-                              ip='%d.%d.%d.1/24' % s_newbytes, routes=routes_intf)
-        else:
-            hN = self.addHost('hN', ip='%d.%d.%d.1/24' % s_newbytes, routes=routes_intf, 
-                cls=Node)
+        hN = self.addNode('hN', ip='%d.%d.%d.1/24' % s_newbytes, routes=routes_intf, 
+            **lastNodeParams)
         self.addLink(s_new, hN, delay='%dms' % (delays[-1]),
                 intfName1='%s-main' % s_new, 
                 params1={

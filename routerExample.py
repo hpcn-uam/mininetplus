@@ -5,9 +5,9 @@ from mininet.net import Mininet
 from mininet.node import Node
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
-from mininetplus.linearTopo import LinearLinuxRouterTopo
+from mininetplus.topolib import LinearLinuxRouterTopo
 from mininetplus.link import TCLink
-from mininetplus.HTTPServer import HTTPServer
+from mininetplus.nodelib import HTTPServer
 
 
 class LinuxRouter( Node ):

@@ -1,11 +1,11 @@
-from mininet.topo import Topo
-from mininetplus.node import Router
+from mininet.topo import Topo as TopoM
+from mininetplus.nodelib import Router
 
-class AbstractTopo(Topo):
+class Topo(TopoM):
 
     def __init__(self):
         self.routers = []
-        super(AbstractTopo, self).__init__()
+        super(Topo, self).__init__()
 
     def addRouter(self, name, **params):
         self.routers.append(name)
@@ -13,4 +13,4 @@ class AbstractTopo(Topo):
             params['cls'] = Router
         return self.addHost(name, **params)
 
-topos = { 'AbstractTopo': (lambda: AbstractTopo()) }
+topos = { 'Topo': (lambda: Topo()) }

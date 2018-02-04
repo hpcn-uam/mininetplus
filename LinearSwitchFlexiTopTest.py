@@ -1,5 +1,5 @@
-from mininetplus.linearTopo import LinearSwitchTopo
-from mininetplus.HTTPServer import HTTPServer
+from mininetplus.topolib import LinearSwitchTopo
+from mininetplus.nodelib import HTTPServer, NAT
 from mininet.net import Mininet
 from mininet.log import setLogLevel
 from mininet.link import TCLink
@@ -11,15 +11,19 @@ import traceback
 
 def main():
     n = 6
-    samples = 10000
-    topo = LinearSwitchTopo(n=n, delays=[10+2*(i) for i in range(n-1)], lastNode=HTTPServer)
+    samples = 1000
+    topo = LinearSwitchTopo(n=n, delays=[10+2*(i) for i in range(n-1)], lastNode=NAT)
     net = Mininet(topo=topo, link=TCLink)
+    net.addNAT().configDefault()
+
     net.start()
+    
     try:
-        net.pingAll()
+        #net.pingAll()
         h0, hN = net.get('h0', 'hN')
         #net.iperf((h0, hN))
-        net.pingPairFull()
+        #net.pingPairFull()
+        CLI(net)
         intfs = {}
         for i, switch in enumerate(net.switches):
             intfs[str(switch)] = [switch.intfs[1]]
@@ -33,17 +37,17 @@ def main():
         print('Interfaces for hN')
         print(hN.intfs[0])
         #intfs[str(hN)] = [hN.intfs[0]]
-
+        raise ValueError('stop')
         for node, interfaces in intfs.iteritems():
             for intf in interfaces:
                 print('TCPDump on %s' % intf)
                 net.get(node).sendCmd('tcpdump -i %s -w ./%s.pcap' % (intf, intf))
-        sleep(2)
+        sleep(5)
+
         print('Generating traffic')
         for i in range(samples):
-            h0.cmd('wget %s &' % (hN.IP()))
-            sleep(0.05)
-            if (i % 1000 == 0):
+            h0.cmd('wget %s' % (hN.IP()))
+            if (i % 100 == 0):
                 print('Iteration %d' % i)
                 sleep(1)
         sleep(10)
@@ -71,6 +75,6 @@ def main():
     
 
 if __name__ == '__main__':
-    setLogLevel('info')
+    setLogLevel('debug')
     main()
 

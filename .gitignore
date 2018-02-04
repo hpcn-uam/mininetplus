@@ -1,10 +1,13 @@
+*.pid
+http_log
 *.html
 *.pyc
 *.pcap
 index.html*
-h*.csv
-h*.pcap
+*.csv
+*.pcap
 s*.csv
 s*.pcap
 wget-log*
 .vscode
+
